@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ETF知识卡">
+<meta name="theme-color" content="#f7f7f5">
+<title>ETF 知识卡</title>
+<style>
+:root{
+  --bg:#f7f7f5; --card:#fff; --fg:#1c1c1e; --fg2:#6b6b70; --fg3:#9a9aa0;
+  --line:rgba(0,0,0,.09); --accent:#185fa5; --accent-bg:#e6f1fb; --ok:#0f6e56; --ok-bg:#e1f5ee;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#111113; --card:#1c1c1f; --fg:#f2f2f4; --fg2:#a0a0a8; --fg3:#6e6e76;
+    --line:rgba(255,255,255,.12); --accent:#85b7eb; --accent-bg:#12293f; --ok:#5dcaa5; --ok-bg:#0d2b23; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+  font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;}
+body{padding-bottom:64px}
+header{position:sticky;top:0;z-index:10;background:var(--bg);padding:14px 18px 10px;
+  border-bottom:.5px solid var(--line)}
+header h1{margin:0;font-size:17px;font-weight:600;letter-spacing:.2px}
+header .sub{font-size:12px;color:var(--fg2);margin-top:2px}
+main{padding:16px 18px 24px;max-width:680px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;
+  background:var(--card);border-top:.5px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;padding:11px 0 12px;font:inherit;font-size:12px;
+  color:var(--fg3);cursor:pointer}
+nav button.on{color:var(--accent);font-weight:600}
+.card{background:var(--card);border:.5px solid var(--line);border-radius:14px;padding:18px 18px 16px}
+.chip{display:inline-block;font-size:11px;padding:2px 9px;border-radius:6px;
+  background:var(--accent-bg);color:var(--accent);letter-spacing:.2px}
+.card h2{font-size:20px;margin:12px 0 10px;font-weight:600;letter-spacing:.2px}
+.card .one{font-size:14.5px;color:var(--fg2);margin:0}
+.acts{display:flex;gap:9px;margin-top:16px}
+.acts button{flex:1;font:inherit;font-size:14px;padding:10px 0;border-radius:10px;cursor:pointer;
+  border:.5px solid var(--line);background:transparent;color:var(--fg)}
+.acts button.primary{background:var(--accent);color:#fff;border-color:transparent;font-weight:500}
+.acts button.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent;font-weight:500}
+.detail{margin-top:18px;padding-top:16px;border-top:.5px solid var(--line);font-size:14.5px;
+  display:none;overflow-wrap:break-word}
+.detail.show{display:block}
+.detail h1,.detail h2,.detail h3{font-size:15px;font-weight:600;margin:18px 0 8px}
+.detail h1:first-child,.detail h2:first-child{margin-top:0}
+.detail p{margin:9px 0}
+.detail ul,.detail ol{margin:9px 0;padding-left:22px}
+.detail li{margin:5px 0}
+.detail blockquote{margin:10px 0;padding:8px 12px;border-left:2px solid var(--line);
+  color:var(--fg2);font-size:13.5px}
+.detail table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px;display:block;overflow-x:auto}
+.detail th,.detail td{border:.5px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+.detail th{background:var(--bg);font-weight:600;white-space:nowrap}
+.detail code{background:var(--bg);padding:1px 5px;border-radius:4px;font-size:13px}
+.detail hr{border:0;border-top:.5px solid var(--line);margin:16px 0}
+.detail strong{font-weight:600}
+.sec{margin:22px 0 8px;font-size:13px;color:var(--fg3);letter-spacing:.4px}
+.grp{background:var(--card);border:.5px solid var(--line);border-radius:14px;
+  margin-bottom:10px;overflow:hidden}
+.grp>summary{padding:14px 16px;cursor:pointer;list-style:none;display:flex;
+  justify-content:space-between;align-items:center;font-size:15px;font-weight:500}
+.grp>summary::-webkit-details-marker{display:none}
+.grp>summary .n{font-size:12px;color:var(--fg3);font-weight:400}
+.sub2{padding:2px 16px 6px}
+.sub2 h4{margin:12px 0 6px;font-size:12px;color:var(--fg3);font-weight:500;letter-spacing:.3px}
+.row{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:.5px solid var(--line);
+  cursor:pointer;font-size:14.5px}
+.row:last-child{border-bottom:0}
+.row .dot{width:7px;height:7px;border-radius:50%;background:var(--line);flex:none}
+.row.done .dot{background:var(--ok)}
+.row.done span{color:var(--fg2)}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0 4px}
+.stat div{background:var(--card);border:.5px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:22px;font-weight:600;letter-spacing:-.3px}
+.stat span{font-size:12px;color:var(--fg2)}
+.g2{margin-bottom:14px}
+.g2 .t{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:2px}
+.g2 .t em{font-style:normal;color:var(--fg3);font-size:12px}
+.overlay{position:fixed;inset:0;background:var(--bg);z-index:20;overflow-y:auto;
+  padding:0 18px 40px;display:none}
+.overlay.show{display:block}
+.overlay .top{position:sticky;top:0;background:var(--bg);padding:14px 0 10px;
+  border-bottom:.5px solid var(--line);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.overlay .top button{font:inherit;font-size:14px;background:none;border:0;color:var(--accent);cursor:pointer;padding:0}
+.wrap{max-width:680px;margin:0 auto}
+.empty{text-align:center;color:var(--fg3);font-size:13.5px;padding:40px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>ETF 知识卡</h1>
+  <div class="sub" id="sub"></div>
+</header>
+
+<main>
+  <section id="v-today"></section>
+  <section id="v-cat" style="display:none"></section>
+  <section id="v-stat" style="display:none"></section>
+</main>
+
+<nav>
+  <button id="t-today" class="on" onclick="go('today')">今日</button>
+  <button id="t-cat" onclick="go('cat')">分类</button>
+  <button id="t-stat" onclick="go('stat')">进度</button>
+</nav>
+
+<div class="overlay" id="ov"><div class="wrap">
+  <div class="top"><button onclick="closeOv()">返回</button><button id="ovAct" onclick="ovMark()">标记已学</button></div>
+  <div id="ovBody"></div>
+</div></div>
+
+<script>
+const DATA = __DATA__;
+const CARDS = DATA.cards;
+const KEY = 'etf-cards-v1';
+const GROUP_ORDER = ['认知地基','路线A · 定投','路线B · 波段','实战工具','基础与书架'];
+
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {learned:{},days:[]} }catch(e){ return {learned:{},days:[]} } }
+function save(s){ localStorage.setItem(KEY, JSON.stringify(s)) }
+let S = load();
+
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0') }
+function epochDay(){ return Math.floor((Date.now() - new Date().getTimezoneOffset()*60000)/86400000) }
+
+const INTERVALS = [1,3,7,15,30,60];
+function isLearned(c){ return !!S.learned[c.id] }
+function dueCards(){
+  const now = Date.now();
+  return CARDS.filter(c=>{ const r=S.learned[c.id]; if(!r) return false;
+    const gap = INTERVALS[Math.min(r.n||0, INTERVALS.length-1)] * 86400000;
+    return now - r.at >= gap; });
+}
+function todayCard(){
+  const due = dueCards().sort((a,b)=>(S.learned[a.id].at||0)-(S.learned[b.id].at||0));
+  if(due.length) return {card:due[0], review:true};
+  const un = CARDS.filter(c=>!isLearned(c));
+  if(!un.length) return {card:null, review:false};
+  return {card: un[epochDay() % un.length], review:false};
+}
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+function inline(s){
+  s = esc(s);
+  s = s.replace(/`([^`]+)`/g,'<code>$1</code>');
+  s = s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  s = s.replace(/\*([^*\n]+)\*/g,'<em>$1</em>');
+  return s;
+}
+function md(text){
+  const L = text.split(/\r?\n/); let h='', i=0, ul=false, ol=false;
+  const close=()=>{ if(ul){h+='</ul>';ul=false} if(ol){h+='</ol>';ol=false} };
+  while(i<L.length){
+    let ln=L[i];
+    if(/^\s*\|/.test(ln) && i+1<L.length && /^\s*\|[\s:|-]+\|?\s*$/.test(L[i+1])){
+      close(); const rows=[];
+      while(i<L.length && /^\s*\|/.test(L[i])){ rows.push(L[i]); i++ }
+      const cells=r=>r.trim().replace(/^\||\|$/g,'').split('|').map(c=>inline(c.trim()));
+      let t='<table><thead><tr>'+cells(rows[0]).map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>';
+      for(let k=2;k<rows.length;k++) t+='<tr>'+cells(rows[k]).map(c=>'<td>'+c+'</td>').join('')+'</tr>';
+      h+=t+'</tbody></table>'; continue;
+    }
+    if(/^\s*$/.test(ln)){ close(); i++; continue }
+    if(/^---+$/.test(ln.trim())){ close(); h+='<hr>'; i++; continue }
+    let m;
+    if(m=ln.match(/^(#{1,6})\s+(.*)$/)){ close(); const lv=Math.min(m[1].length,3); h+='<h'+lv+'>'+inline(m[2])+'</h'+lv+'>'; i++; continue }
+    if(/^>\s?/.test(ln)){ close(); const q=[];
+      while(i<L.length && /^>\s?/.test(L[i])){ q.push(L[i].replace(/^>\s?/,'')); i++ }
+      h+='<blockquote>'+q.map(inline).join('<br>')+'</blockquote>'; continue }
+    if(m=ln.match(/^\s*[-*+]\s+(.*)$/)){ if(!ul){close();h+='<ul>';ul=true} h+='<li>'+inline(m[1])+'</li>'; i++; continue }
+    if(m=ln.match(/^\s*\d+[.)]\s+(.*)$/)){ if(!ol){close();h+='<ol>';ol=true} h+='<li>'+inline(m[1])+'</li>'; i++; continue }
+    close();
+    const buf=[ln]; i++;
+    while(i<L.length && !/^\s*$/.test(L[i]) && !/^(#{1,6}\s|>\s?|\s*[-*+]\s|\s*\d+[.)]\s|---)/.test(L[i]) && !/^\s*\|/.test(L[i])){ buf.push(L[i]); i++ }
+    h+='<p>'+buf.map(inline).join('<br>')+'</p>';
+  }
+  close(); return h;
+}
+function bodyHTML(c){
+  let b = c.body.replace(/^#\s+[^\n]*\r?\n?/, '').replace(/^\s+/, '');
+  if(/^>/.test(b)){
+    const L = b.split(/\r?\n/); let k = 0;
+    while(k < L.length && /^>/.test(L[k])) k++;
+    if(L.slice(0,k).join('\n').includes('一句话')) b = L.slice(k).join('\n');
+  }
+  return md(b.trim());
+}
+function chip(c){ return '<span class="chip">'+esc(c.category)+' · '+esc(c.sub)+'</span>' }
+
+function markLearned(id){
+  const r = S.learned[id];
+  S.learned[id] = { at: Date.now(), n: r ? (r.n||0)+1 : 0 };
+  const t = todayStr();
+  if(!S.days.includes(t)) S.days.push(t);
+  save(S);
+}
+function streak(){
+  const set = new Set(S.days); let n=0; const d=new Date();
+  for(;;){ const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    if(set.has(k)){ n++; d.setDate(d.getDate()-1) } else break }
+  return n;
+}
+
+let cur = null;
+function renderToday(){
+  const {card, review} = todayCard();
+  const el = document.getElementById('v-today');
+  if(!card){
+    el.innerHTML = '<div class="empty">149 张卡全部学完了。<br>接下来是复习回炉——明天再来。</div>'; return;
+  }
+  cur = card;
+  const st = S.learned[card.id];
+  const done = isLearned(card.id);
+  el.innerHTML =
+   '<div class="card">' + chip(card) +
+   '<h2>'+esc(card.title)+'</h2>' +
+   '<p class="one">'+esc(card.oneliner)+'</p>' +
+   '<div class="acts">' +
+     '<button onclick="toggle()" id="btnD">展开详解</button>' +
+     (done ? '<button class="ok" onclick="markAgain()">已学 · 复习一次</button>'
+           : '<button class="primary" onclick="markNow()">标记已学</button>') +
+   '</div>' +
+   (review ? '<div style="margin-top:12px;font-size:12px;color:var(--fg3)">这是一张到期待复习的卡（第 '+((st.n||0)+1)+' 次）</div>' : '') +
+   '<div class="detail" id="det">'+bodyHTML(card)+'</div>' +
+   '</div>';
+}
+function toggle(){
+  const d=document.getElementById('det'), b=document.getElementById('btnD');
+  d.classList.toggle('show'); b.textContent = d.classList.contains('show') ? '收起' : '展开详解';
+}
+function markNow(){ markLearned(cur.id); renderToday(); refreshNav() }
+function markAgain(){ markLearned(cur.id); renderToday(); refreshNav() }
+
+function renderCat(){
+  const el = document.getElementById('v-cat');
+  let h = '';
+  GROUP_ORDER.forEach(g=>{
+    const list = CARDS.filter(c=>c.category===g);
+    if(!list.length) return;
+    const done = list.filter(isLearned).length;
+    h += '<details class="grp"><summary><span>'+esc(g)+'</span><span class="n">'+done+' / '+list.length+'</span></summary><div class="sub2">';
+    const subs = [...new Set(list.map(c=>c.sub))];
+    subs.forEach(s=>{
+      h += '<h4>'+esc(s)+'</h4>';
+      list.filter(c=>c.sub===s).forEach(c=>{
+        h += '<div class="row '+(isLearned(c)?'done':'')+'" onclick="openCard(\''+c.id+'\')"><i class="dot"></i><span>'+esc(c.title)+'</span></div>';
+      });
+    });
+    h += '</div></details>';
+  });
+  el.innerHTML = h;
+}
+function renderStat(){
+  const total = CARDS.length, done = CARDS.filter(isLearned).length;
+  const pct = Math.round(done/total*100);
+  let h = '<div class="stat"><div><b>'+done+'</b><span>已学</span></div>' +
+          '<div><b>'+total+'</b><span>总卡数</span></div>' +
+          '<div><b>'+streak()+'</b><span>连续天数</span></div></div>' +
+          '<div class="g2" style="margin-top:18px"><div class="t"><span>总进度</span><em>'+pct+'%</em></div>' +
+          '<div class="bar"><i style="width:'+pct+'%"></i></div></div>';
+  GROUP_ORDER.forEach(g=>{
+    const list = CARDS.filter(c=>c.category===g); if(!list.length) return;
+    const d = list.filter(isLearned).length, p = Math.round(d/list.length*100);
+    h += '<div class="g2"><div class="t"><span>'+esc(g)+'</span><em>'+d+' / '+list.length+'</em></div><div class="bar"><i style="width:'+p+'%"></i></div></div>';
+  });
+  h += '<div class="sec">复习队列</div>';
+  const due = dueCards().length;
+  h += '<div class="g2"><div class="t"><span>待复习</span><em>'+due+' 张</em></div></div>';
+  h += '<div style="margin-top:26px"><button onclick="resetAll()" style="font:inherit;font-size:13px;padding:8px 14px;border-radius:9px;border:.5px solid var(--line);background:none;color:var(--fg3)">清空全部学习记录</button></div>';
+  document.getElementById('v-stat').innerHTML = h;
+}
+function resetAll(){ if(confirm('清空所有已学记录？不可恢复。')){ S={learned:{},days:[]}; save(S); renderToday(); renderCat(); renderStat(); refreshNav() } }
+
+function openCard(id){
+  const c = CARDS.find(x=>x.id===id); if(!c) return;
+  cur = c;
+  document.getElementById('ovBody').innerHTML = '<div class="card">'+chip(c)+'<h2>'+esc(c.title)+'</h2><p class="one">'+esc(c.oneliner)+'</p></div>'+'<div class="detail show" style="border-top:0">'+bodyHTML(c)+'</div>';
+  document.getElementById('ovAct').textContent = isLearned(c.id) ? '已学 ✓' : '标记已学';
+  document.getElementById('ov').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  window.scrollTo(0,0);
+}
+function closeOv(){ document.getElementById('ov').classList.remove('show'); document.body.style.overflow = ''; renderCat(); renderToday(); renderStat(); refreshNav() }
+function ovMark(){ if(cur){ markLearned(cur.id); document.getElementById('ovAct').textContent='已学 ✓' } }
+
+function go(t){
+  ['today','cat','stat'].forEach(k=>{
+    document.getElementById('v-'+k).style.display = k===t?'':'none';
+    document.getElementById('t-'+k).className = k===t?'on':'';
+  });
+  if(t==='cat') renderCat(); if(t==='stat') renderStat();
+  if(t==='today') renderToday();
+  window.scrollTo(0,0);
+}
+function refreshNav(){
+  const done = CARDS.filter(isLearned).length;
+  document.getElementById('sub').textContent = todayStr()+' · 已学 '+done+'/'+CARDS.length+' · 连续 '+streak()+' 天';
+}
+
+document.getElementById('sub').textContent = todayStr()+' · 已学 0/'+CARDS.length;
+renderToday(); refreshNav();
+</script>
+</body>
+</html>

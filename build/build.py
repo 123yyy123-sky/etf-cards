@@ -1,0 +1,20 @@
+import json, os
+
+ROOT = r"F:\Ai\ETF知识卡"
+tpl = open(os.path.join(ROOT, "app-template.html"), encoding="utf-8").read()
+data = open(os.path.join(ROOT, "cards.json"), encoding="utf-8").read()
+
+# 防止 JSON 里出现 </script> 提前闭合
+payload = data.replace("</", "<\\/")
+html = tpl.replace("__DATA__", payload)
+
+os.makedirs(os.path.join(ROOT, "docs"), exist_ok=True)
+targets = [
+    os.path.join(ROOT, "ETF知识卡.html"),          # 本机单文件版
+    os.path.join(ROOT, "docs", "index.html"),      # GitHub Pages 发布版
+]
+for dest in targets:
+    open(dest, "w", encoding="utf-8").write(html)
+    print("written:", dest, round(os.path.getsize(dest) / 1024), "KB")
+
+print("cards =", len(json.loads(data)["cards"]))
