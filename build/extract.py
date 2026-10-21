@@ -1,9 +1,15 @@
 import os, re, json
 
 BASE = r"F:\知识库\我的知识库"
-OUT = r"F:\Ai\ETF知识卡"
+# 输出目录由本文件位置推导（build\ 的上级），别写死。
+# 2026-10-21 踩过：写死成 F:\Ai\ETF知识卡，目录搬到 F:\Ai\apps\ 之后就断了。
+OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 G1, G2, G3, G4, G5 = "认知地基", "路线A · 定投", "路线B · 波段", "实战工具", "基础与书架"
+G6, G7 = "交易手册 · 人读", "短线"
+
+# 分区顺序，改这里一处即可（不要在两处 sort 里各写一遍）
+ORDER = [G1, G2, G3, G4, G5, G6, G7]
 
 MAP = {
     # ---- 认知地基 ----
@@ -157,7 +163,21 @@ for root, dirs, files in os.walk(BASE):
         name = os.path.splitext(f)[0]
         title = fm.get("标题") or name
 
-        if rel.startswith("07-复盘笔记/ETF/"):
+        if rel.startswith("07-复盘笔记/ETF/交易手册-人读/"):
+            # 人读手册。必须排在下面的 07-复盘笔记/ETF/ 前面，否则会被那条吃掉
+            add(title, rel, fm, body, (G6, "人读手册"))
+
+        elif rel.startswith("07-复盘笔记/短线/"):
+            if "/短线手册-人读/" in rel:
+                add(title, rel, fm, body, (G7, "人读手册"))
+            elif "/短线系统/" in rel:
+                # 判断台账将来会填真实交易判断，仓库是公开的，不进
+                if "判断台账" in name:
+                    skipped.append(rel); continue
+                add(title, rel, fm, body, (G7, "系统与回测"))
+            # 交易记录 / 每日复盘 目前是空目录，忽略
+
+        elif rel.startswith("07-复盘笔记/ETF/"):
             if any(k in rel for k in TOOL_SKIP):
                 continue
             cat = TOOLS.get(name) or TOOLS.get(re.sub(r"（.*?）", "", title))
@@ -171,7 +191,20 @@ for root, dirs, files in os.walk(BASE):
             cat = MAP.get(name) or MAP.get(re.sub(r"（.*?）", "", name))
             add(title, rel, fm, body, cat)
 
-cards.sort(key=lambda c: (["认知地基", "路线A · 定投", "路线B · 波段", "实战工具", "基础与书架"].index(c["category"]), c["sub"], c["title"]))
+def sort_key(c):
+    """分区 → 子组 → 篇内顺序。
+
+    两个新分区是人读手册，文件名带 00-01-02 序号，必须按文件名排。
+    按标题排会乱：标题里的「先看这里」不含序号，会被汉字编码顺序甩到中间去。
+    老分区沿用按标题排，不动它们的现状。
+    """
+    ci = ORDER.index(c["category"])
+    if c["category"] in (G6, G7):
+        return (ci, c["sub"], os.path.basename(c["source"]))
+    return (ci, c["sub"], c["title"])
+
+
+cards.sort(key=sort_key)
 for c in cards:
     c["id"] = c["source"]
 
@@ -187,7 +220,7 @@ report.append("=== 分组统计 ===")
 from collections import Counter
 gc = Counter((c["category"], c["sub"]) for c in cards)
 cur = None
-for (g, s), n in sorted(gc.items(), key=lambda x: (["认知地基","路线A · 定投","路线B · 波段","实战工具","基础与书架"].index(x[0][0]), x[0][1])):
+for (g, s), n in sorted(gc.items(), key=lambda x: (ORDER.index(x[0][0]), x[0][1])):
     if g != cur:
         report.append(f"\n【{g}】"); cur = g
     report.append(f"   {s}: {n}")
@@ -201,5 +234,16 @@ for c in cards[:8]:
     report.append(f"\n[{c['id']}] {c['title']}  ({c['category']} / {c['sub']}) [{c['type']}/{c['status']}]")
     report.append(f"   一句话: {c['oneliner'][:80]}")
 
-open(r"F:\Ai\workbuddy\2026-09-24-23-33-05\.workbuddy\tmp\extract-report.txt", "w", encoding="utf-8").write("\n".join(report))
+# 报告写到 build\ 下，别写进 WorkBuddy 工作区（那种目录随时会被清理）
+_rpt = os.path.join(OUT, "build", "extract-report.txt")
+open(_rpt, "w", encoding="utf-8").write("\n".join(report))
 print("done", len(cards))
+print("报告:", _rpt)
+# 顺便把分组统计打到屏幕上，跑 更新卡片.bat 时能直接看见
+if "=== 分组统计 ===" in report:
+    i = report.index("=== 分组统计 ===")
+    for ln in report[i + 1:]:
+        if ln.startswith("==="):
+            break
+        if ln.strip():
+            print(ln)

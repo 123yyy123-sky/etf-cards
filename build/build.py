@@ -1,6 +1,8 @@
 import json, os
 
-ROOT = r"F:\Ai\ETF知识卡"
+# 目录由本文件位置推导（build\ 的上级），别写死。
+# 2026-10-21 踩过：写死成 F:\Ai\ETF知识卡，目录搬到 F:\Ai\apps\ 之后就断了。
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 tpl = open(os.path.join(ROOT, "app-template.html"), encoding="utf-8").read()
 data = open(os.path.join(ROOT, "cards.json"), encoding="utf-8").read()
 

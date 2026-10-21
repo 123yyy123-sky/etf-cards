@@ -2,3 +2,5 @@ ETF知识卡.html
 site/
 *.bak
 __pycache__/
+# 抽取报告是构建副产物，每次跑都会变，不进版本库
+build/extract-report.txt

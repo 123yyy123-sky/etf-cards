@@ -118,7 +118,7 @@ nav button.on{color:var(--accent);font-weight:600}
 const DATA = __DATA__;
 const CARDS = DATA.cards;
 const KEY = 'etf-cards-v1';
-const GROUP_ORDER = ['认知地基','路线A · 定投','路线B · 波段','实战工具','基础与书架'];
+const GROUP_ORDER = ['认知地基','路线A · 定投','路线B · 波段','实战工具','基础与书架','交易手册 · 人读','短线'];
 
 function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {learned:{},days:[]} }catch(e){ return {learned:{},days:[]} } }
 function save(s){ localStorage.setItem(KEY, JSON.stringify(s)) }
